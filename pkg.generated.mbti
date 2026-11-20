@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "yuzhiblue/moon-semchunk"
+
+// Values
+pub fn adjacent_differences(Array[Array[Double]]) -> Array[Double]
+
+pub fn chunk(String, (String) -> Array[Double], Threshold) -> Array[Chunk]
+
+pub fn cosine(Array[Double], Array[Double]) -> Double
+
+pub fn detect_breakpoints(Array[Double], Threshold) -> Array[Bool]
+
+pub fn merge_sentences(Array[String], Array[Bool]) -> Array[Chunk]
+
+pub fn split_sentences(String) -> Array[String]
+
+// Errors
+
+// Types and methods
+pub(all) struct Chunk {
+  text : String
+  index : Int32
+}
+
+pub(all) enum Threshold {
+  Percentile(Double)
+  StandardDeviation(Double)
+  Interquartile(Double)
+}
+
+// Type aliases
+
+// Traits
