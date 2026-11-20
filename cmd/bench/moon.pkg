@@ -1,0 +1,5 @@
+import {
+  "yuzhiblue/moon-semchunk/bench" @bmark,
+}
+
+pkgtype(kind: "executable")

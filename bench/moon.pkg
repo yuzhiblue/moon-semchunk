@@ -1,0 +1,3 @@
+import {
+  "yuzhiblue/moon-semchunk" @semchunk,
+}

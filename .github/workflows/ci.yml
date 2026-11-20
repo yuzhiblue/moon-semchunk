@@ -33,3 +33,6 @@ jobs:
 
       - name: Run example
         run: moon run cmd/main --target wasm
+
+      - name: Run benchmark
+        run: moon run cmd/bench --target wasm

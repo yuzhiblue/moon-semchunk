@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "yuzhiblue/moon-semchunk/bench"
+
+// Values
+pub fn case_embedder(BenchCase) -> (String) -> Array[Double]
+
+pub fn make_case(String, Int32, Int32) -> BenchCase
+
+pub fn run_benchmark() -> Array[BenchRow]
+
+pub fn true_breakpoints(BenchCase) -> Array[Bool]
+
+// Errors
+
+// Types and methods
+pub(all) struct BenchCase {
+  name : String
+  sentences : Array[LabelledSentence]
+  topics : Int32
+}
+
+pub(all) struct BenchRow {
+  case_name : String
+  label : String
+  metrics : SplitMetrics
+  api_chunks : Int32
+}
+
+pub(all) struct LabelledSentence {
+  text : String
+  topic : Int32
+}
+
+pub(all) struct SplitMetrics {
+  chunks : Int32
+  boundary_f1 : Double
+  purity : Double
+}
+
+// Type aliases
+
+// Traits
