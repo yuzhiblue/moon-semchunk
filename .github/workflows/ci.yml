@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install MoonBit toolchain
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Show toolchain version
+        run: moon version --all
+
+      - name: Check
+        run: moon check --deny-warn --target wasm
+
+      - name: Build
+        run: moon build --target wasm
+
+      - name: Test
+        run: moon test --deny-warn --target wasm
+
+      - name: Run example
+        run: moon run cmd/main --target wasm
