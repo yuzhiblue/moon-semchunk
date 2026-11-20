@@ -17,6 +17,7 @@ fn demo_embedder(text : String) -> Array[Double] {
   }
 }
 
+///|
 fn main {
   let text = "The cat sleeps on the mat. The cat loves to play. The ocean is deep and blue. Ships cross the ocean daily."
   let chunks = @semchunk.chunk(text, demo_embedder, @semchunk.Percentile(70.0))

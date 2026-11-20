@@ -15,8 +15,13 @@ MoonBit RAG libraries provide recursive / token / markdown / HTML splitters, but
 none implement similarity-based semantic boundaries. `moon-semchunk` fills that
 gap as a standalone, reusable library.
 
-Design follows LangChain's `SemanticChunker` (MIT), reimplemented natively in
-MoonBit. It is a port of the algorithm, not a copy of the source.
+Design follows LangChain's `SemanticChunker` (MIT,
+<https://github.com/langchain-ai/langchain-text-splitters>) and LlamaIndex's
+`SemanticSplitterNodeParser` (MIT, <https://github.com/run-llama/llama_index>),
+reimplemented natively in MoonBit. It is a port of the algorithm, not a copy of
+the source. Ported: statistical threshold computation, similarity-to-difference
+conversion and adjacent-sentence breakpoint detection. Not ported: buffer
+windows, token budgets, hierarchical node structures and LLM-based rewrites.
 
 ## Install
 
@@ -26,15 +31,21 @@ moon add yuzhiblue/moon-semchunk
 
 ## Usage
 
-```moonbit
+```moonbit nocheck
+///|
 fn embed(text : String) -> Array[Double] {
   // Replace with a call to your embedding provider.
   [1.0, 0.0]
 }
 
+///|
 fn main {
   let text = "The cat sleeps. The cat plays. The ocean is deep. Ships cross it."
-  let chunks = @moon_semchunk.chunk(text, embed, @moon_semchunk.Percentile(95.0))
+  let chunks = @moon_semchunk.chunk(
+    text,
+    embed,
+    @moon_semchunk.Percentile(95.0),
+  )
   for chunk in chunks {
     println(chunk.text)
   }
@@ -62,4 +73,4 @@ every backend (native / wasm / wasm-gc / js).
 
 ## License
 
-MIT. Algorithm reference: LangChain `SemanticChunker` (MIT).
+MIT. Algorithm references: LangChain `SemanticChunker` (MIT, <https://github.com/langchain-ai/langchain-text-splitters>) and LlamaIndex `SemanticSplitterNodeParser` (MIT, <https://github.com/run-llama/llama_index>). Source code was not copied.

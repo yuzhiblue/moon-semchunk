@@ -19,7 +19,7 @@ repository = "https://github.com/yuzhiblue/moon-semchunk"
 
 license = "MIT"
 
-keywords = ["rag", "semantic-chunking", "nlp", "text"]
+keywords = [ "rag", "semantic-chunking", "nlp", "text" ]
 
 preferred_target = "wasm"
 
