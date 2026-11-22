@@ -59,7 +59,7 @@ every backend (native / wasm / wasm-gc / js).
 ## API
 
 - `chunk(text, embedder, strategy)` — one-shot semantic splitting.
-- `split_sentences(text)` — sentence segmentation (`.!?。！？`).
+- `split_sentences(text)` — sentence segmentation (`.!?。！？`) with decimal-point, abbreviation and repeated-punctuation handling.
 - `cosine(a, b)` — cosine similarity.
 - `adjacent_differences(embeddings)` — `1 - cosine` between neighbours.
 - `detect_breakpoints(differences, strategy)` — boolean breakpoint mask.

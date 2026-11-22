@@ -32,15 +32,50 @@ pub(all) enum Threshold {
 ///
 /// Supported terminators: `.`, `!`, `?`, `。`, `！`, `？`. The terminator is
 /// kept at the end of the sentence. Empty sentences are dropped.
+///
+/// Context rules avoid the three common false positives of naive splitters:
+/// a dot between digits is a decimal point (`3.14`), a dot after a known
+/// abbreviation before a capital is not a boundary (`Dr. Smith`), and a run
+/// of punctuation (`...`, `!!?`) is kept as one terminator.
 pub fn split_sentences(text : String) -> Array[String] {
   let out : Array[String] = []
+  let chars = text.to_array()
+  let n = chars.length()
   let mut buf = StringBuilder()
-  for ch in text {
-    buf.write_char(ch)
+  let mut last_word = StringBuilder()
+  let mut i = 0
+  while i < n {
+    let ch = chars[i]
     if is_sentence_end(ch) {
-      push_sentence(out, buf)
-      buf = StringBuilder()
+      let prev_digit = i > 0 && is_ascii_digit(chars[i - 1])
+      let next_alpha = i + 1 < n && is_ascii_alpha(chars[i + 1])
+      let next_digit = i + 1 < n && is_ascii_digit(chars[i + 1])
+      let next_space = i + 1 < n && chars[i + 1] == ' '
+      let is_decimal = ch == '.' && prev_digit && next_digit
+      let is_inner_dot = ch == '.' && next_alpha
+      let is_abbreviation = ch == '.' &&
+        next_space &&
+        is_known_abbreviation(last_word.to_string())
+      if !is_decimal && !is_inner_dot && !is_abbreviation {
+        buf.write_char(ch)
+        while i + 1 < n && is_sentence_end(chars[i + 1]) {
+          i += 1
+          buf.write_char(chars[i])
+        }
+        push_sentence(out, buf)
+        buf = StringBuilder()
+        last_word = StringBuilder()
+        i += 1
+        continue
+      }
     }
+    buf.write_char(ch)
+    if ch == ' ' {
+      last_word = StringBuilder()
+    } else if is_ascii_alpha(ch) || is_ascii_digit(ch) || ch == '.' {
+      last_word.write_char(ch)
+    }
+    i += 1
   }
   push_sentence(out, buf)
   out
@@ -50,6 +85,45 @@ pub fn split_sentences(text : String) -> Array[String] {
 fn is_sentence_end(ch : Char) -> Bool {
   match ch {
     '.' | '!' | '?' | '。' | '！' | '？' => true
+    _ => false
+  }
+}
+
+///|
+fn is_ascii_digit(ch : Char) -> Bool {
+  ch >= '0' && ch <= '9'
+}
+
+///|
+fn is_ascii_alpha(ch : Char) -> Bool {
+  (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+}
+
+///|
+fn is_known_abbreviation(word : String) -> Bool {
+  match word {
+    "Dr"
+    | "Mr"
+    | "Mrs"
+    | "Ms"
+    | "Prof"
+    | "Sr"
+    | "Jr"
+    | "St"
+    | "vs"
+    | "etc"
+    | "e.g"
+    | "i.e"
+    | "No"
+    | "Fig"
+    | "Inc"
+    | "Ltd"
+    | "Co"
+    | "approx"
+    | "dept"
+    | "est"
+    | "min"
+    | "max" => true
     _ => false
   }
 }
@@ -158,7 +232,8 @@ fn percentile(sorted : Array[Double], p : Double) -> Double {
   if n == 1 {
     return sorted[0]
   }
-  let rank = (n - 1).to_double() * (p / 100.0)
+  let pct = if p < 0.0 { 0.0 } else if p > 100.0 { 100.0 } else { p }
+  let rank = (n - 1).to_double() * (pct / 100.0)
   let lo = rank.to_int()
   let hi = (lo + 1).min(n - 1)
   let frac = rank - lo.to_double()

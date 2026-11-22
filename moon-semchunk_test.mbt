@@ -177,3 +177,62 @@ test "chunk: topic shift produces multiple chunks" {
   assert_true(chunks[0].text.contains("cat"))
   assert_true(chunks[1].text.contains("ocean"))
 }
+
+///|
+test "split_sentences: decimal point is not a boundary" {
+  let got = @moon-semchunk.split_sentences("Pi is 3.14 today.")
+  assert_eq(got.length(), 1)
+  assert_eq(got[0], "Pi is 3.14 today.")
+}
+
+///|
+test "split_sentences: known abbreviation is not a boundary" {
+  let got = @moon-semchunk.split_sentences("Dr. Smith went home.")
+  assert_eq(got.length(), 1)
+  assert_eq(got[0], "Dr. Smith went home.")
+}
+
+///|
+test "split_sentences: inner dot of e.g. is not a boundary" {
+  let got = @moon-semchunk.split_sentences("Use a tool, e.g. a hammer.")
+  assert_eq(got.length(), 1)
+}
+
+///|
+test "split_sentences: consecutive punctuation stays in one sentence" {
+  let got = @moon-semchunk.split_sentences("Wait... what happened?")
+  assert_eq(got.length(), 2)
+  assert_eq(got[0], "Wait...")
+  assert_eq(got[1], "what happened?")
+}
+
+///|
+test "split_sentences: mixed terminators in a run are one boundary" {
+  let got = @moon-semchunk.split_sentences("Really?! Yes.")
+  assert_eq(got.length(), 2)
+  assert_eq(got[0], "Really?!")
+  assert_eq(got[1], "Yes.")
+}
+
+///|
+test "detect_breakpoints: percentile out of range is clamped" {
+  let diffs : Array[Double] = [0.1, 0.2, 0.9]
+  let low = @moon-semchunk.detect_breakpoints(
+    diffs,
+    @moon-semchunk.Percentile(-50.0),
+  )
+  let high = @moon-semchunk.detect_breakpoints(
+    diffs,
+    @moon-semchunk.Percentile(200.0),
+  )
+  assert_eq(low.length(), 3)
+  assert_eq(high.length(), 3)
+  assert_eq(
+    low,
+    @moon-semchunk.detect_breakpoints(diffs, @moon-semchunk.Percentile(0.0)),
+  )
+  assert_eq(
+    high,
+    @moon-semchunk.detect_breakpoints(diffs, @moon-semchunk.Percentile(100.0)),
+  )
+}
