@@ -16,7 +16,7 @@ none implement similarity-based semantic boundaries. `moon-semchunk` fills that
 gap as a standalone, reusable library.
 
 Design follows LangChain's `SemanticChunker` (MIT,
-<https://github.com/langchain-ai/langchain-text-splitters>) and LlamaIndex's
+<https://github.com/langchain-ai/langchain-experimental/blob/main/libs/experimental/langchain_experimental/text_splitter.py>) and LlamaIndex's
 `SemanticSplitterNodeParser` (MIT, <https://github.com/run-llama/llama_index>),
 reimplemented natively in MoonBit. It is a port of the algorithm, not a copy of
 the source. Ported: statistical threshold computation, similarity-to-difference
@@ -73,4 +73,4 @@ every backend (native / wasm / wasm-gc / js).
 
 ## License
 
-MIT. Algorithm references: LangChain `SemanticChunker` (MIT, <https://github.com/langchain-ai/langchain-text-splitters>) and LlamaIndex `SemanticSplitterNodeParser` (MIT, <https://github.com/run-llama/llama_index>). Source code was not copied.
+MIT. Algorithm references: LangChain `SemanticChunker` (MIT, <https://github.com/langchain-ai/langchain-experimental/blob/main/libs/experimental/langchain_experimental/text_splitter.py>) and LlamaIndex `SemanticSplitterNodeParser` (MIT, <https://github.com/run-llama/llama_index>). Source code was not copied.

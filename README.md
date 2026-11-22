@@ -39,7 +39,7 @@ MoonBit 生态现状：`moonrag` 提供 Recursive / Token / Markdown / HTML 切�
 
 ## 与已有项目的关系
 
-算法参考 LangChain 的 `SemanticChunker`（MIT，<https://github.com/langchain-ai/langchain-text-splitters>）和 LlamaIndex 的 `SemanticSplitterNodeParser`（MIT，<https://github.com/run-llama/llama_index>），是**算法移植与 MoonBit 原生重写**，非源码复制。与 `moonrag` 等的关系是互补：它们做规则切分与检索，本项目做语义切分，接口设计便于协同。
+算法参考 LangChain 的 `SemanticChunker`（MIT，<https://github.com/langchain-ai/langchain-experimental/blob/main/libs/experimental/langchain_experimental/text_splitter.py>）和 LlamaIndex 的 `SemanticSplitterNodeParser`（MIT，<https://github.com/run-llama/llama_index>），是**算法移植与 MoonBit 原生重写**，非源码复制。与 `moonrag` 等的关系是互补：它们做规则切分与检索，本项目做语义切分，接口设计便于协同。
 
 移植范围：统计阈值计算（percentile / standard_deviation / interquartile）、相似度转差异值、相邻句断点检测的整体思路。未移植：LangChain 的 buffer_size 窗口、sentence_grouper 与多模型适配层，以及 LlamaIndex 的 token 预算、层级节点结构和 LLM 改写逻辑。重写部分：MoonBit 纯函数 API、embedder 回调注入和 `Chunk` 数据结构。
 
@@ -89,4 +89,4 @@ let chunks = @moon_semchunk.chunk(text, embed, @moon_semchunk.Percentile(95.0))
 
 ## 许可证
 
-MIT。算法参考 LangChain `SemanticChunker`（MIT，<https://github.com/langchain-ai/langchain-text-splitters>）与 LlamaIndex `SemanticSplitterNodeParser`（MIT，<https://github.com/run-llama/llama_index>）；本项目未复制其源码，详见"与已有项目的关系"。
+MIT。算法参考 LangChain `SemanticChunker`（MIT，<https://github.com/langchain-ai/langchain-experimental/blob/main/libs/experimental/langchain_experimental/text_splitter.py>）与 LlamaIndex `SemanticSplitterNodeParser`（MIT，<https://github.com/run-llama/llama_index>）；本项目未复制其源码，详见"与已有项目的关系"。
