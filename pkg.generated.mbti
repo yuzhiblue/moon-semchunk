@@ -2,17 +2,51 @@
 package "yuzhiblue/moon-semchunk"
 
 // Values
+pub fn add_sentence_overlap(Array[Chunk], Int32) -> Array[Chunk]
+
 pub fn adjacent_differences(Array[Array[Double]]) -> Array[Double]
+
+pub fn budget_options(Threshold, Int32, Int32) -> ChunkOptions
 
 pub fn chunk(String, (String) -> Array[Double], Threshold) -> Array[Chunk]
 
+pub fn chunk_by_budget(String, Int32, Int32) -> Array[Chunk]
+
+pub fn chunk_stats(Array[Chunk]) -> ChunkStats
+
+pub fn chunk_texts(Array[Chunk]) -> Array[String]
+
+pub fn chunk_with_options(String, (String) -> Array[Double], ChunkOptions) -> Array[Chunk]
+
+pub fn chunks_well_formed(Array[Chunk]) -> Bool
+
+pub fn contextual_differences(Array[String], (String) -> Array[Double], Int32) -> Array[Double]
+
 pub fn cosine(Array[Double], Array[Double]) -> Double
 
+pub fn default_options(Threshold) -> ChunkOptions
+
 pub fn detect_breakpoints(Array[Double], Threshold) -> Array[Bool]
+
+pub fn drop_long_chunks(Array[Chunk], Int32) -> Array[Chunk]
+
+pub fn drop_short_chunks(Array[Chunk], Int32) -> Array[Chunk]
+
+pub fn embed_with_context(Array[String], (String) -> Array[Double], Int32) -> Array[Array[Double]]
+
+pub fn filter_chunks(Array[Chunk], (Chunk) -> Bool) -> Array[Chunk]
+
+pub fn flatten_chunks(Array[Chunk], String) -> String
+
+pub fn make_options(Threshold, Int32, Int32, Int32) -> ChunkOptions
 
 pub fn merge_sentences(Array[String], Array[Bool]) -> Array[Chunk]
 
 pub fn split_sentences(String) -> Array[String]
+
+pub fn total_chars(Array[Chunk]) -> Int32
+
+pub fn window_text(String, Int32) -> Array[String]
 
 // Errors
 
@@ -20,6 +54,21 @@ pub fn split_sentences(String) -> Array[String]
 pub(all) struct Chunk {
   text : String
   index : Int32
+}
+
+pub(all) struct ChunkOptions {
+  strategy : Threshold
+  buffer_size : Int32
+  max_chunk_size : Int32
+  overlap : Int32
+}
+
+pub(all) struct ChunkStats {
+  count : Int32
+  min_length : Int32
+  max_length : Int32
+  mean_length : Double
+  sentence_count : Int32
 }
 
 pub(all) enum Threshold {

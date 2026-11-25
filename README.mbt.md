@@ -59,6 +59,12 @@ every backend (native / wasm / wasm-gc / js).
 ## API
 
 - `chunk(text, embedder, strategy)` — one-shot semantic splitting.
+- `chunk_with_options(text, embedder, options)` — configurable splitting with context windows and size budgets.
+- `ChunkOptions` — configuration for buffer size, max chunk size and overlap.
+- `embed_with_context(sentences, embedder, buffer_size)` — context-aware sentence embeddings.
+- `chunk_by_budget(text, max_size, overlap)` — rule-only size-capped splitting.
+- `chunk_stats(chunks)` — count, min/max/mean length and sentence count.
+- `add_sentence_overlap(chunks, count)` — post-split sentence overlap.
 - `split_sentences(text)` — sentence segmentation (`.!?。！？`) with decimal-point, abbreviation and repeated-punctuation handling.
 - `cosine(a, b)` — cosine similarity.
 - `adjacent_differences(embeddings)` — `1 - cosine` between neighbours.

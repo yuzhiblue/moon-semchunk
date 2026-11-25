@@ -236,3 +236,103 @@ test "detect_breakpoints: percentile out of range is clamped" {
     @moon-semchunk.detect_breakpoints(diffs, @moon-semchunk.Percentile(100.0)),
   )
 }
+
+///|
+test "context_window: radius zero returns the sentence itself" {
+  let sentences : Array[String] = ["A.", "B.", "C."]
+  fn embed(s : String) -> Array[Double] {
+    [s.length().to_double(), 0.0]
+  }
+  let vectors = @moon-semchunk.embed_with_context(sentences, embed, 0)
+  assert_eq(vectors.length(), 3)
+  assert_eq(vectors[1][0], 2.0)
+}
+
+///|
+test "embed_with_context: neighbours are included" {
+  let sentences : Array[String] = ["A.", "B.", "C."]
+  fn embed(s : String) -> Array[Double] {
+    [s.length().to_double(), 0.0]
+  }
+  let vectors = @moon-semchunk.embed_with_context(sentences, embed, 1)
+  assert_eq(vectors.length(), 3)
+  assert_true(vectors[1][0] > 2.0)
+}
+
+///|
+test "chunk_by_budget: splits long text and reindexes" {
+  let chunks = @moon-semchunk.chunk_by_budget(
+    "One. Two. Three. Four. Five.", 10, 0,
+  )
+  assert_true(chunks.length() >= 2)
+  assert_true(@moon-semchunk.chunks_well_formed(chunks))
+  for chunk in chunks {
+    assert_true(chunk.text.length() <= 10)
+  }
+}
+
+///|
+test "chunk_with_options: negative values are normalised" {
+  fn embed(_s : String) -> Array[Double] {
+    [1.0, 0.0]
+  }
+  let opts = @moon-semchunk.make_options(
+    @moon-semchunk.Percentile(70.0),
+    -1,
+    -1,
+    -1,
+  )
+  let chunks = @moon-semchunk.chunk_with_options("A. B. C.", embed, opts)
+  assert_eq(chunks.length(), 1)
+}
+
+///|
+test "chunk_stats: empty and non-empty" {
+  let empty = @moon-semchunk.chunk_stats([])
+  assert_eq(empty.count, 0)
+  assert_eq(empty.mean_length, 0.0)
+  let chunks : Array[@moon-semchunk.Chunk] = [
+    { text: "A.", index: 0, },
+    { text: "Hello world.", index: 1, },
+  ]
+  let stats = @moon-semchunk.chunk_stats(chunks)
+  assert_eq(stats.count, 2)
+  assert_eq(stats.min_length, 2)
+  assert_eq(stats.max_length, 12)
+  assert_true(stats.mean_length > 6.0)
+  assert_eq(stats.sentence_count, 2)
+}
+
+///|
+test "add_sentence_overlap: prefixes previous tail" {
+  let chunks : Array[@moon-semchunk.Chunk] = [
+    { text: "A. B.", index: 0, },
+    { text: "C. D.", index: 1, },
+  ]
+  let overlapped = @moon-semchunk.add_sentence_overlap(chunks, 1)
+  assert_eq(overlapped.length(), 2)
+  assert_true(overlapped[1].text.contains("B."))
+  assert_true(@moon-semchunk.chunks_well_formed(overlapped))
+}
+
+///|
+test "filter helpers and flatten preserve order" {
+  let chunks : Array[@moon-semchunk.Chunk] = [
+    { text: "A.", index: 0, },
+    { text: "Long chunk here.", index: 1, },
+  ]
+  let kept = @moon-semchunk.drop_short_chunks(chunks, 5)
+  assert_eq(kept.length(), 1)
+  assert_eq(kept[0].text, "Long chunk here.")
+  assert_eq(@moon-semchunk.total_chars(chunks), 18)
+  assert_eq(@moon-semchunk.flatten_chunks(chunks, "|"), "A.|Long chunk here.")
+}
+
+///|
+test "window_text: batches long strings" {
+  let windows = @moon-semchunk.window_text("abcdefg", 3)
+  assert_eq(windows.length(), 3)
+  assert_eq(windows[0], "abc")
+  assert_eq(windows[2], "g")
+  assert_eq(@moon-semchunk.window_text("abc", 0).length(), 0)
+}

@@ -23,6 +23,8 @@ MoonBit 生态现状：`moonrag` 提供 Recursive / Token / Markdown / HTML 切�
 - 三种断点策略：percentile / standard_deviation / interquartile
 - 句子合并为 `Chunk`
 - 一站式 `chunk()` API（embedder 以回调注入）
+- `chunk_with_options()` 配置式 API：`buffer_size` 上下文感知嵌入、`max_chunk_size` 块大小预算、`overlap` 句子级重叠
+- 分块后处理：`chunk_stats()` 质量统计、`add_sentence_overlap()` 重叠、`drop_short_chunks()` / `drop_long_chunks()` 过滤
 - 接口设计便于接入 `moonrag` / `MoonRetrieve` 等现有 RAG 流程（不依赖其类型或运行时）
 
 明确不做：
@@ -58,7 +60,7 @@ let chunks = @moon_semchunk.chunk(text, embed, @moon_semchunk.Percentile(95.0))
 
 ## 测试与验证
 
-`moon test --deny-warn --target wasm`：42 个测试全部通过（核心黑盒 23 + 白盒 10 + golden 5 + benchmark 4），覆盖分句、相似度、三种断点策略、合并、一站式 API、数值回归、分句边界与对照基准。CI 覆盖 check / build / test / run example / run benchmark。
+`moon test --deny-warn --target wasm`：50 个测试全部通过（核心黑盒 31 + 白盒 10 + golden 5 + benchmark 4），覆盖分句、相似度、三种断点策略、合并、一站式 API、配置式 API、上下文嵌入、预算控制、分块统计、数值回归、分句边界与对照基准。CI 覆盖 check / build / test / run example / run benchmark。
 
 分句边界行为：小数点（`3.14`）与缩写（`Dr. Smith`、`e.g.`）不会被误判为句末；连续标点（`...`、`?!`）作为单一终止符，不产生纯标点句子。缩写识别覆盖常见英文缩写白名单，可通过 `split_sentences` 直接验证。
 
