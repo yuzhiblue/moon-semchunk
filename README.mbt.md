@@ -60,7 +60,7 @@ every backend (native / wasm / wasm-gc / js).
 
 - `chunk(text, embedder, strategy)` — one-shot semantic splitting.
 - `chunk_with_options(text, embedder, options)` — configurable splitting with context windows and size budgets.
-- `ChunkOptions` — configuration for buffer size, max chunk size and overlap.
+- `ChunkOptions` — configuration for buffer size, max chunk size and overlap (size budget is a soft cap at sentence boundaries).
 - `embed_with_context(sentences, embedder, buffer_size)` — context-aware sentence embeddings.
 - `chunk_by_budget(text, max_size, overlap)` — rule-only size-capped splitting.
 - `chunk_stats(chunks)` — count, min/max/mean length and sentence count.

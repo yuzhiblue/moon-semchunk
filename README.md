@@ -23,7 +23,7 @@ MoonBit 生态现状：`moonrag` 提供 Recursive / Token / Markdown / HTML 切�
 - 三种断点策略：percentile / standard_deviation / interquartile
 - 句子合并为 `Chunk`
 - 一站式 `chunk()` API（embedder 以回调注入）
-- `chunk_with_options()` 配置式 API：`buffer_size` 上下文感知嵌入、`max_chunk_size` 块大小预算、`overlap` 句子级重叠
+- `chunk_with_options()` 配置式 API：`buffer_size` 上下文感知嵌入、`max_chunk_size` 块大小预算（句子边界上的软上限）、`overlap` 句子级重叠
 - 分块后处理：`chunk_stats()` 质量统计、`add_sentence_overlap()` 重叠、`drop_short_chunks()` / `drop_long_chunks()` 过滤
 - 接口设计便于接入 `moonrag` / `MoonRetrieve` 等现有 RAG 流程（不依赖其类型或运行时）
 
