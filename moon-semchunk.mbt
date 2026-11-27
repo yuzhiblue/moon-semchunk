@@ -51,11 +51,14 @@ pub fn split_sentences(text : String) -> Array[String] {
       let next_alpha = i + 1 < n && is_ascii_alpha(chars[i + 1])
       let next_digit = i + 1 < n && is_ascii_digit(chars[i + 1])
       let next_space = i + 1 < n && chars[i + 1] == ' '
+      let word = last_word.to_string()
       let is_decimal = ch == '.' && prev_digit && next_digit
-      let is_inner_dot = ch == '.' && next_alpha
+      let is_inner_dot = ch == '.' &&
+        next_alpha &&
+        is_abbreviation_context(word)
       let is_abbreviation = ch == '.' &&
         next_space &&
-        is_known_abbreviation(last_word.to_string())
+        is_known_abbreviation(word)
       if !is_decimal && !is_inner_dot && !is_abbreviation {
         buf.write_char(ch)
         while i + 1 < n && is_sentence_end(chars[i + 1]) {
@@ -125,6 +128,21 @@ fn is_known_abbreviation(word : String) -> Bool {
     | "min"
     | "max" => true
     _ => false
+  }
+}
+
+///|
+/// A dot followed by a letter is an inner dot only inside (or directly
+/// after) a known abbreviation, e.g. `e.g` or `Dr.Smith`. Ordinary words
+/// such as `One.Two` stay splittable.
+fn is_abbreviation_context(word : String) -> Bool {
+  if is_known_abbreviation(word) {
+    true
+  } else {
+    match word {
+      "e" | "i" => true
+      _ => false
+    }
   }
 }
 
@@ -487,19 +505,33 @@ fn group_by_budget(
     let extra = if current.length() == 0 { 0 } else { 1 }
     if current.length() > 0 && length + extra + sentence.length() > max_size {
       out.push(current)
+      // Only carry over the trailing sentences that still fit next to the
+      // new one. Otherwise overlap alone can push a chunk past the budget.
+      let room = max_size - sentence.length() - 1
       let tail = overlap.min(current.length())
+      let stop = current.length() - tail
+      let mut j = current.length() - 1
+      let mut chosen_start = current.length()
+      let mut kept = 0
+      while j >= stop {
+        let added = if j == current.length() - 1 {
+          current[j].length()
+        } else {
+          1 + current[j].length()
+        }
+        if kept + added > room {
+          break
+        }
+        kept += added
+        chosen_start = j
+        j -= 1
+      }
       let next : Array[String] = []
-      for i in (current.length() - tail)..<current.length() {
-        next.push(current[i])
+      for k in chosen_start..<current.length() {
+        next.push(current[k])
       }
       current = next
-      length = 0
-      for s in current {
-        length += s.length() + 1
-      }
-      if length > 0 {
-        length -= 1
-      }
+      length = kept
     }
     if current.length() > 0 {
       length += 1

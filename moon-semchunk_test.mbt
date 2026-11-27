@@ -336,3 +336,104 @@ test "window_text: batches long strings" {
   assert_eq(windows[2], "g")
   assert_eq(@moon-semchunk.window_text("abc", 0).length(), 0)
 }
+
+///|
+test "chunk_by_budget: overlap stays within the budget" {
+  let chunks = @moon-semchunk.chunk_by_budget("A. B. C. D. E.", 5, 1)
+  assert_eq(chunks.length(), 4)
+  assert_eq(chunks[0].text, "A. B.")
+  assert_eq(chunks[1].text, "B. C.")
+  assert_eq(chunks[2].text, "C. D.")
+  assert_eq(chunks[3].text, "D. E.")
+  for chunk in chunks {
+    assert_true(chunk.text.length() <= 5)
+  }
+  assert_true(@moon-semchunk.chunks_well_formed(chunks))
+}
+
+///|
+test "chunk_by_budget: overlap is dropped when it cannot fit" {
+  let chunks = @moon-semchunk.chunk_by_budget("AAAAAA. BBBBBB. CCCCCC.", 10, 1)
+  assert_eq(chunks.length(), 3)
+  for chunk in chunks {
+    assert_true(chunk.text.length() <= 10)
+  }
+}
+
+///|
+test "split_sentences: no-space boundaries are still detected" {
+  let got = @moon-semchunk.split_sentences("One.Two.Three.")
+  assert_eq(got.length(), 3)
+  assert_eq(got[0], "One.")
+  assert_eq(got[1], "Two.")
+  assert_eq(got[2], "Three.")
+}
+
+///|
+test "default_options: no context and no size budget" {
+  let opts = @moon-semchunk.default_options(@moon-semchunk.Percentile(95.0))
+  assert_eq(opts.buffer_size, 0)
+  assert_eq(opts.max_chunk_size, 0)
+  assert_eq(opts.overlap, 0)
+}
+
+///|
+test "contextual_differences: zero buffer matches adjacent_differences" {
+  fn embed(s : String) -> Array[Double] {
+    [s.length().to_double(), 0.0]
+  }
+  let sentences : Array[String] = ["A.", "BB.", "C."]
+  let plain = @moon-semchunk.adjacent_differences(
+    @moon-semchunk.embed_with_context(sentences, embed, 0),
+  )
+  let via_wrapper = @moon-semchunk.contextual_differences(sentences, embed, 0)
+  assert_eq(via_wrapper, plain)
+}
+
+///|
+test "drop_long_chunks: removes oversized chunks and reindexes" {
+  let chunks : Array[@moon-semchunk.Chunk] = [
+    { text: "A.", index: 0, },
+    { text: "A very long chunk.", index: 1, },
+    { text: "B.", index: 2, },
+  ]
+  let kept = @moon-semchunk.drop_long_chunks(chunks, 5)
+  assert_eq(kept.length(), 2)
+  assert_eq(kept[0].text, "A.")
+  assert_eq(kept[1].text, "B.")
+  assert_true(@moon-semchunk.chunks_well_formed(kept))
+}
+
+///|
+test "chunk_by_budget: carries multiple overlap sentences when they fit" {
+  let chunks = @moon-semchunk.chunk_by_budget("A. B. C. D. E.", 8, 2)
+  assert_eq(chunks.length(), 3)
+  assert_eq(chunks[0].text, "A. B. C.")
+  assert_eq(chunks[1].text, "B. C. D.")
+  assert_eq(chunks[2].text, "C. D. E.")
+  for chunk in chunks {
+    assert_true(chunk.text.length() <= 8)
+  }
+}
+
+///|
+test "chunk_by_budget: empty text returns no chunks" {
+  assert_eq(@moon-semchunk.chunk_by_budget("", 8, 1).length(), 0)
+}
+
+///|
+test "chunk_with_options: size budget splits an oversized chunk" {
+  fn embed(_s : String) -> Array[Double] {
+    [1.0, 0.0]
+  }
+  let opts = @moon-semchunk.budget_options(
+    @moon-semchunk.Percentile(95.0),
+    0,
+    8,
+  )
+  let chunks = @moon-semchunk.chunk_with_options("A. B. C. D. E.", embed, opts)
+  assert_eq(chunks.length(), 2)
+  assert_eq(chunks[0].text, "A. B. C.")
+  assert_eq(chunks[1].text, "D. E.")
+  assert_true(@moon-semchunk.chunks_well_formed(chunks))
+}

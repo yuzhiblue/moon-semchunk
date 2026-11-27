@@ -75,3 +75,11 @@ test "join_parts: inserts single spaces" {
   let parts : Array[String] = ["A.", "B.", "C."]
   assert_eq(join_parts(parts), "A. B. C.")
 }
+
+///|
+test "is_abbreviation_context: only known abbreviations count" {
+  assert_true(is_abbreviation_context("e"))
+  assert_true(is_abbreviation_context("i"))
+  assert_true(is_abbreviation_context("Dr"))
+  assert_true(!is_abbreviation_context("One"))
+}

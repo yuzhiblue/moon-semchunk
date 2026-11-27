@@ -60,7 +60,7 @@ let chunks = @moon_semchunk.chunk(text, embed, @moon_semchunk.Percentile(95.0))
 
 ## 测试与验证
 
-`moon test --deny-warn --target wasm`：50 个测试全部通过（核心黑盒 31 + 白盒 10 + golden 5 + benchmark 4），覆盖分句、相似度、三种断点策略、合并、一站式 API、配置式 API、上下文嵌入、预算控制、分块统计、数值回归、分句边界与对照基准。CI 覆盖 check / build / test / run example / run benchmark。
+`moon test --deny-warn --target wasm`：60 个测试全部通过（核心黑盒 40 + 白盒 11 + golden 5 + benchmark 4），覆盖分句、相似度、三种断点策略、合并、一站式 API、配置式 API、上下文嵌入、预算控制（含重叠不超预算）、分块统计、数值回归、分句边界与对照基准。CI 覆盖 check / build / test / run example / run benchmark。
 
 分句边界行为：小数点（`3.14`）与缩写（`Dr. Smith`、`e.g.`）不会被误判为句末；连续标点（`...`、`?!`）作为单一终止符，不产生纯标点句子。缩写识别覆盖常见英文缩写白名单，可通过 `split_sentences` 直接验证。
 
